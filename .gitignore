@@ -1,0 +1,5 @@
+influxdb/data
+iobroker/data
+nextcloud/data
+postgre/data
+pihole/etc-*

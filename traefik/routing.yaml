@@ -1,0 +1,56 @@
+http:
+  # Add the router
+  routers:
+    router0:
+      entryPoints:
+        - web
+      middlewares:
+        - redirect_middleware
+      service: omv
+      rule: Host(`omv.zarva.me`)
+    router1:
+      tls:
+        domains:
+        - main: omv.zarva
+      entryPoints:
+        - websecure
+      service: omv
+      rule: Host(`omv.zarva.me`)
+    router2:
+      entryPoints:
+        - web
+      middlewares:
+        - redirect_middleware
+      service: pihole
+      rule: Host(`pihole.zarva.me`)
+    router3:
+      tls:
+        domains:
+        - main: pihole.zarva
+      entryPoints:
+        - websecure
+      service: pihole
+      rule: Host(`pihole.zarva.me`)
+
+  # Add the service
+  services:
+    omv:
+      loadBalancer:
+        server:
+          port: 81
+        servers:
+          - url: http://192.168.1.150:81
+    pihole:
+      loadBalancer:
+        servers:
+          - url: http://192.168.1.150:1001
+  middlewares:
+    redirect_middleware:
+      redirectScheme:
+        scheme: https
+        permanent: true
+
+tls:
+  certificates:
+  - certFile: /etc/letsencrypt/live/zarva.me/fullchain.pem
+    keyFile: /etc/letsencrypt/live/zarva.me/privkey.pem

@@ -1,0 +1,26 @@
+version: '2'
+services:
+  postgres:
+    image: postgres:12-alpine
+    restart: unless-stopped
+    # user: postgres
+    volumes:
+      - ./data:/var/lib/postgresql/data
+      - ./postgres.conf:/etc/postgresql/postgresql.conf
+    environment:
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_USER=xzasdiukh
+      - TZ=Europe/Berlin
+    container_name: postgres
+    hostname: postgres.zarva
+    networks:
+      - postgres.internal
+    logging:
+      driver: syslog
+      options:
+        tag: "{{.Name}}/{{.ID}}"
+
+networks:
+  postgres.internal:
+    external:
+      name: postgres.internal

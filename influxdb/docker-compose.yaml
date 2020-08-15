@@ -1,0 +1,25 @@
+version: "2"
+
+services:
+  influxdb:
+    image: influxdb:1.8-alpine
+    environment:
+      - TZ=Europe/Berlin
+    container_name: influxdb
+    hostname: influx.db
+    restart: unless-stopped
+    volumes:
+      - ./data:/var/lib/influxdb
+      - ./influxdb.conf:/etc/influxdb/influxdb.conf
+    networks:
+      - influx.internal
+    logging:
+      driver: syslog
+      options:
+        tag: "{{.Name}}/{{.ID}}"
+
+networks:
+  influx.internal:
+    external:
+      name: influx.internal
+

@@ -1,0 +1,61 @@
+version: '2'
+
+services:
+
+  nextcloud:
+    logging: &logging
+      driver: syslog
+      options:
+        tag: "{{.Name}}/{{.ID}}"
+    image: nextcloud:19-fpm
+    volumes:
+      - ./data:/var/www/html
+      - /srv/dev-disk-by-label-hdd/nextcloud:/var/www/html/data
+    restart: unless-stopped
+    environment:
+      - TZ=Europe/Berlin
+    container_name: nextcloud
+    hostname: nextcloud.zarva
+    networks:
+      - nextcloud.internal
+      - postgres.internal
+
+  nextcloud_reversproxy:
+    logging: *logging
+    image: nginx:1.19-alpine
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    volumes_from:
+      - nextcloud
+    restart: unless-stopped
+    environment:
+      - TZ=Europe/Berlin
+    container_name: nextcloud_reversproxy
+    hostname: nextcloud_server.zarva
+    networks:
+      - nextcloud.internal
+      - micro.internal
+    labels:
+      - "traefik.enable=true"
+
+      - "traefik.http.routers.nextcloud.tls=true"
+      - "traefik.http.routers.nextcloud.entryPoints=websecure"
+      - "traefik.http.routers.nextcloud.rule=Host(`nextcloud.zarva.me`)"
+      - "traefik.http.routers.nextcloud.service=nextcloud"
+      - "traefik.http.services.nextcloud.loadbalancer.server.port=80"
+
+      - "traefik.http.routers.http_nextcloud.entryPoints=web"
+      - "traefik.http.routers.http_nextcloud.rule=Host(`nextcloud.zarva.me`)"
+      - "traefik.http.routers.http_nextcloud.middlewares=https_redirect"
+      - "traefik.http.middlewares.https_redirect.redirectScheme.scheme=https"
+
+networks:
+  postgres.internal:
+    external:
+      name: postgres.internal
+  micro.internal:
+    external:
+      name: micro.internal
+  nextcloud.internal:
+    external:
+      name: nextcloud.internal
