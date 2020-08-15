@@ -7,11 +7,16 @@ services:
       driver: syslog
       options:
         tag: "{{.Name}}/{{.ID}}"
-    image: nextcloud:19-fpm
+    image: custom_nextcloud
+    build:
+      context: ./build
+      dockerfile: nextcloud_Dockerfile
     volumes:
       - ./data:/var/www/html
       - /srv/dev-disk-by-label-hdd/nextcloud:/var/www/html/data
+      - ./www.conf:/usr/local/etc/php-fpm.d/www.conf
     restart: unless-stopped
+    user: next
     environment:
       - TZ=Europe/Berlin
     container_name: nextcloud
@@ -21,13 +26,17 @@ services:
       - postgres.internal
 
   nextcloud_reversproxy:
+    image: nextcloud_reversproxy
+    build:
+      context: ./build
+      dockerfile: reversproxy_Dockerfile
     logging: *logging
-    image: nginx:1.19-alpine
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
     volumes_from:
       - nextcloud
     restart: unless-stopped
+    user: next
     environment:
       - TZ=Europe/Berlin
     container_name: nextcloud_reversproxy
@@ -42,7 +51,7 @@ services:
       - "traefik.http.routers.nextcloud.entryPoints=websecure"
       - "traefik.http.routers.nextcloud.rule=Host(`nextcloud.zarva.me`)"
       - "traefik.http.routers.nextcloud.service=nextcloud"
-      - "traefik.http.services.nextcloud.loadbalancer.server.port=80"
+      - "traefik.http.services.nextcloud.loadbalancer.server.port=8080"
 
       - "traefik.http.routers.http_nextcloud.entryPoints=web"
       - "traefik.http.routers.http_nextcloud.rule=Host(`nextcloud.zarva.me`)"

@@ -5,6 +5,7 @@ services:
     image: influxdb:1.8-alpine
     environment:
       - TZ=Europe/Berlin
+    user: "995"
     container_name: influxdb
     hostname: influx.db
     restart: unless-stopped

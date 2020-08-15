@@ -1,0 +1,11 @@
+FROM nginx:1.19-alpine
+
+RUN addgroup --system --gid 990 next \
+    && adduser --uid 993 --system --ingroup next next
+
+RUN touch /var/run/nginx.pid && \
+  chown -R next: /var/run/nginx.pid && \
+  chown -R next: /var/cache/nginx
+
+USER next
+

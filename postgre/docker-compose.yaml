@@ -3,7 +3,7 @@ services:
   postgres:
     image: postgres:12-alpine
     restart: unless-stopped
-    # user: postgres
+    #    user: postgres
     volumes:
       - ./data:/var/lib/postgresql/data
       - ./postgres.conf:/etc/postgresql/postgresql.conf
@@ -19,6 +19,7 @@ services:
       driver: syslog
       options:
         tag: "{{.Name}}/{{.ID}}"
+    command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
 
 networks:
   postgres.internal:
