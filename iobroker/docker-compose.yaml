@@ -13,8 +13,8 @@ services:
       - NET_ADMIN
     volumes:
       - ./data:/opt/iobroker
-        # ports:
-        # - "1081:8081"
+    ports:
+      - "10000:10000"
         #  - "1082:8082"
         # - "1083:8083"
         # - "1084:8084"
@@ -42,13 +42,13 @@ services:
       - "traefik.http.routers.vis.tls=true"
       - "traefik.http.routers.vis.entryPoints=websecure"
       - "traefik.http.routers.vis.rule=Host(`vis.zarva.me`)"
-      - "traefik.http.routers.vis.service=iobroker1"
       - "traefik.http.routers.vis.service=vis"
       - "traefik.http.services.vis.loadbalancer.server.port=8082"
 
       - "traefik.http.routers.http_iobroker.entryPoints=web"
       - "traefik.http.routers.http_iobroker.rule=Host(`iobroker.zarva.me`)"
       - "traefik.http.routers.http_iobroker.middlewares=iobroker_redirect"
+      - "traefik.http.routers.http_iobroker.service=iobroker"
       - "traefik.http.middlewares.iobroker_redirect.redirectScheme.scheme=https"
 
       - "traefik.http.routers.http_vis.entryPoints=web"
