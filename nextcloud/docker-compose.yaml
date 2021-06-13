@@ -13,7 +13,7 @@ services:
       dockerfile: nextcloud_Dockerfile
     volumes:
       - ./data:/var/www/html
-      - /srv/dev-disk-by-label-hdd/nextcloud:/var/www/html/data
+      - /store/nextcloud:/var/www/html/data
       - ./www.conf:/usr/local/etc/php-fpm.d/www.conf
     restart: unless-stopped
     user: next
@@ -47,16 +47,22 @@ services:
     labels:
       - "traefik.enable=true"
 
-      - "traefik.http.routers.nextcloud.tls=true"
-      - "traefik.http.routers.nextcloud.entryPoints=websecure"
-      - "traefik.http.routers.nextcloud.rule=Host(`nextcloud.zarva.me`)"
-      - "traefik.http.routers.nextcloud.service=nextcloud"
+      - "traefik.http.routers.http_nextcloud.service=nextcloud"
       - "traefik.http.services.nextcloud.loadbalancer.server.port=8080"
-
       - "traefik.http.routers.http_nextcloud.entryPoints=web"
       - "traefik.http.routers.http_nextcloud.rule=Host(`nextcloud.zarva.me`)"
-      - "traefik.http.routers.http_nextcloud.middlewares=https_redirect"
-      - "traefik.http.middlewares.https_redirect.redirectScheme.scheme=https"
+
+  cron:
+    build:
+      context: ./build
+      dockerfile: cron_Dockerfile
+    container_name: cron
+    restart: unless-stopped
+    logging: *logging
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - TZ=Europe/Berlin
 
 networks:
   postgres.internal:

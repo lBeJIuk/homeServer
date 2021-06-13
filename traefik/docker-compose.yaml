@@ -4,12 +4,9 @@ services:
     image: traefik:latest
     ports:
       - "80:80"
-      - "443:443"
     volumes:
       - ./traefik.yaml:/etc/traefik/traefik.yaml:ro
-      - ./routing.yaml:/etc/traefik/routing.yaml:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /etc/letsencrypt:/etc/letsencrypt:ro
     logging:
       driver: syslog
       options:

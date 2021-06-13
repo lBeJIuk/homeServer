@@ -13,14 +13,6 @@ services:
       - NET_ADMIN
     volumes:
       - ./data:/opt/iobroker
-    ports:
-      - "10000:10000"
-        #  - "1082:8082"
-        # - "1083:8083"
-        # - "1084:8084"
-        #- "1883:1883"
-        #- "1885:1885"
-        # - "1888:1888"
     devices:
       - "/dev/ttyACM0:/dev/ttyACM0"
     networks:
@@ -33,29 +25,15 @@ services:
     labels:
       - "traefik.enable=true"
 
-      - "traefik.http.routers.iobroker.tls=true"
-      - "traefik.http.routers.iobroker.entryPoints=websecure"
-      - "traefik.http.routers.iobroker.rule=Host(`iobroker.zarva.me`)"
-      - "traefik.http.routers.iobroker.service=iobroker"
-      - "traefik.http.services.iobroker.loadbalancer.server.port=8081"
-
-      - "traefik.http.routers.vis.tls=true"
-      - "traefik.http.routers.vis.entryPoints=websecure"
-      - "traefik.http.routers.vis.rule=Host(`vis.zarva.me`)"
-      - "traefik.http.routers.vis.service=vis"
-      - "traefik.http.services.vis.loadbalancer.server.port=8082"
-
       - "traefik.http.routers.http_iobroker.entryPoints=web"
       - "traefik.http.routers.http_iobroker.rule=Host(`iobroker.zarva.me`)"
-      - "traefik.http.routers.http_iobroker.middlewares=iobroker_redirect"
+      - "traefik.http.services.iobroker.loadbalancer.server.port=8081"
       - "traefik.http.routers.http_iobroker.service=iobroker"
-      - "traefik.http.middlewares.iobroker_redirect.redirectScheme.scheme=https"
 
       - "traefik.http.routers.http_vis.entryPoints=web"
       - "traefik.http.routers.http_vis.rule=Host(`vis.zarva.me`)"
-      - "traefik.http.routers.http_vis.middlewares=vis_redirect"
+      - "traefik.http.services.vis.loadbalancer.server.port=8082"
       - "traefik.http.routers.http_vis.service=vis"
-      - "traefik.http.middlewares.vis_redirect.redirectScheme.scheme=https"
 
 networks:
   micro.internal:
@@ -64,4 +42,3 @@ networks:
   influx.internal:
     external:
       name: influx.internal
-

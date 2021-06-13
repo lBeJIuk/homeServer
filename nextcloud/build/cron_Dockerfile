@@ -1,0 +1,9 @@
+FROM docker:19
+
+RUN apk add --no-cache --update tzdata && \
+  rm -rf /var/cache/apk/*
+
+COPY ./entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+CMD ["/entrypoint.sh"]
