@@ -1,4 +1,4 @@
-FROM nextcloud:19-fpm
+FROM nextcloud:22-fpm
 
 RUN addgroup --system --gid 990 next \
     && adduser --uid 993 --system --ingroup next next

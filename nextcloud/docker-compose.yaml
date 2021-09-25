@@ -52,6 +52,17 @@ services:
       - "traefik.http.routers.http_nextcloud.entryPoints=web"
       - "traefik.http.routers.http_nextcloud.rule=Host(`nextcloud.zarva.me`)"
 
+      - "traefik.http.middlewares.nextcloud-headers.headers.contenttypenosniff=true"
+      - "traefik.http.middlewares.nextcloud-headers.headers.customframeoptionsvalue=SAMEORIGIN"
+      - "traefik.http.middlewares.nextcloud-headers.headers.customresponseheaders.X-Download-Options=noopen"
+      - "traefik.http.middlewares.nextcloud-headers.headers.customresponseheaders.X-Permitted-Cross-Domain-Policies=none"
+      - "traefik.http.middlewares.nextcloud-headers.headers.customresponseheaders.X-Robots-Tag=none"
+      - "traefik.http.middlewares.nextcloud-headers.headers.customresponseheaders.X-XSS-Protection=1; mode=block"
+      - "traefik.http.middlewares.nextcloud-headers.headers.customresponseheaders.Strict-Transport-Security=15552000"
+      - "traefik.http.middlewares.nextcloud-headers.headers.customresponseheaders.Referrer-Policy=no-referrer"
+      - "traefik.http.middlewares.nextcloud-headers.headers.customresponseheaders.X-Frame-Options=SAMEORIGIN"
+      - "traefik.http.routers.http_nextcloud.middlewares=nextcloud-headers"
+
   cron:
     build:
       context: ./build
