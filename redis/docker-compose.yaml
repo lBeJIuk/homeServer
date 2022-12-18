@@ -1,0 +1,22 @@
+version: "2"
+
+services:
+  redis:
+    image: redis:7
+    environment:
+      - TZ=Europe/Berlin
+    container_name: redis
+    hostname: redis
+    restart: unless-stopped
+    networks:
+      - redis.internal
+    logging:
+      driver: syslog
+      options:
+        tag: "{{.Name}}/{{.ID}}"
+
+networks:
+  redis.internal:
+    external:
+      name: redis.internal
+

@@ -1,0 +1,43 @@
+version: "3.7"
+
+services:
+  send:
+    image: registry.gitlab.com/timvisee/send:latest
+    hostname: send
+    container_name: send
+    restart: unless-stopped
+    environment:
+      - TZ=Europe/Berlin
+      - BASE_URL=https://send.zarva.me
+      - PORT=80
+      - REDIS_HOST=redis
+      - MAX_EXPIRE_SECONDS=1296000
+      - EXPIRE_TIMES_SECONDS=300,3600,86400,604800,1296000
+      - DEFAULT_DOWNLOADS=100
+      - FILE_DIR=/storeSend
+      - NODE_ENV=production
+      - MAX_FILE_SIZE=5368709120
+    volumes:
+      - /store/send:/storeSend
+    networks:
+      - micro.internal
+      - redis.internal
+    logging:
+      driver: syslog
+      options:
+        tag: "{{.Name}}/{{.ID}}"
+    labels:
+      - "traefik.enable=true"
+
+      - "traefik.http.routers.http_send.entryPoints=web"
+      - "traefik.http.routers.http_send.rule=Host(`send.zarva.me`)"
+      - "traefik.http.services.send.loadbalancer.server.port=80"
+      - "traefik.http.routers.http_send.service=send"
+
+networks:
+  micro.internal:
+    external:
+      name: micro.internal
+  redis.internal:
+    external:
+      name: redis.internal

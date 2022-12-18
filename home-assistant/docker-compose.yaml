@@ -1,0 +1,41 @@
+version: "3.7"
+
+services:
+  homeassistant:
+    privileged: true
+    init: true
+    image: ghcr.io/home-assistant/home-assistant:stable
+    hostname: homeassistant
+    container_name: homeassistant
+    restart: unless-stopped
+    environment:
+      - TZ=Europe/Berlin
+      - USBDEVICES=/dev/ttyACM0
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - ./config:/config
+    devices:
+      - "/dev/ttyACM0:/dev/ttyACM0"
+    networks:
+      - micro.internal
+      - influx.internal
+    logging:
+      driver: syslog
+      options:
+        tag: "{{.Name}}/{{.ID}}"
+    labels:
+      - "traefik.enable=true"
+
+      - "traefik.http.routers.http_homeassistant.entryPoints=web"
+      - "traefik.http.routers.http_homeassistant.rule=Host(`homeassistant.zarva.me`)"
+      - "traefik.http.services.homeassistant.loadbalancer.server.port=8123"
+      - "traefik.http.routers.http_homeassistant.service=homeassistant"
+
+networks:
+  micro.internal:
+    external:
+      name: micro.internal
+  influx.internal:
+    external:
+      name: influx.internal

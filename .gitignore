@@ -3,3 +3,5 @@ iobroker/data
 nextcloud/data
 postgre/data
 pihole/etc-*
+home-assistant/config
+gitea/.env
