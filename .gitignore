@@ -5,3 +5,5 @@ postgre/data
 pihole/etc-*
 home-assistant/config
 gitea/.env
+mongo/.env
+your_spotify/.env

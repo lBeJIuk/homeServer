@@ -1,0 +1,48 @@
+version: "3"
+
+services:
+  yourSpotifyServer:
+    container_name: yourSpotifyServer
+    image: yooooomi/your_spotify_server
+    restart: unless-stopped
+    environment:
+      - API_ENDPOINT=https://yourspotifyserver.zarva.me # This MUST be included as a valid URL in the spotify dashboard (see below)
+      - CLIENT_ENDPOINT=https://yourSpotify.zarva.me
+      - CORS=all # all if you want to allow every origin
+    env_file:
+      - .env
+    networks:
+      - mongo.internal
+      - micro.internal
+    labels:
+      - "traefik.enable=true"
+
+      - "traefik.http.routers.http_yourSpotify_server.service=yourSpotifyServer"
+      - "traefik.http.services.yourSpotifyServer.loadbalancer.server.port=8080"
+      - "traefik.http.routers.http_yourSpotifyServer.entryPoints=web"
+      - "traefik.http.routers.http_yourSpotifyServer.rule=Host(`yourSpotifyServer.zarva.me`)"
+
+
+  yourSpotifyClient:
+    container_name: yourSpotifyClient
+    image: yooooomi/your_spotify_client
+    restart: unless-stopped
+    environment:
+      - API_ENDPOINT=https://yourSpotifyServer.zarva.me
+    networks:
+      - micro.internal
+    labels:
+      - "traefik.enable=true"
+
+      - "traefik.http.routers.http_yourSpotify.service=yourSpotify"
+      - "traefik.http.services.yourSpotify.loadbalancer.server.port=3000"
+      - "traefik.http.routers.http_yourSpotify.entryPoints=web"
+      - "traefik.http.routers.http_yourSpotify.rule=Host(`yourSpotify.zarva.me`)"
+
+networks:
+  micro.internal:
+    external:
+      name: micro.internal
+  mongo.internal:
+    external:
+      name: mongo.internal
