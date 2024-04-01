@@ -2,7 +2,7 @@ version: "2"
 
 services:
   gitea:
-    image: gitea/gitea:1.17.3
+    image: gitea/gitea:1.21
     environment:
       - USER_UID=1000
       - USER_GID=1000
@@ -16,7 +16,7 @@ services:
     env_file:
       - .env
     volumes:
-      - /gitea:/data
+      - ./data:/data
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     networks:

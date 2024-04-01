@@ -5,5 +5,9 @@ postgre/data
 pihole/etc-*
 home-assistant/config
 gitea/.env
+gitea/data
 mongo/.env
 your_spotify/.env
+immich/model_cache
+immich/tsdata
+immich/.env

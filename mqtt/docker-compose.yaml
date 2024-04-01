@@ -1,0 +1,22 @@
+version: '3.7'
+
+services:
+  mosquitto:
+    container_name: mosquitto
+    image: eclipse-mosquitto:2
+    restart: always
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /store/mosquitto/conf:/mosquitto/config
+      - /store/mosquitto/data:/mosquitto/data
+      - /store/mosquitto/log:/mosquitto/log
+    networks:
+      - micro.internal
+    ports:
+      - 8883:8883
+
+networks:
+  micro.internal:
+    external:
+      name: micro.internal

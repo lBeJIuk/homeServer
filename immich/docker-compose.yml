@@ -1,0 +1,83 @@
+version: "3.7"
+
+services:
+  immich-server:
+    container_name: immich-server
+    image: ghcr.io/immich-app/immich-server:release
+    entrypoint: ["/bin/sh", "./start-server.sh"]
+    volumes:
+      - ${UPLOAD_LOCATION}:/usr/src/app/upload
+    env_file:
+      - .env
+    networks:
+      - postgres.internal
+      - redis.internal
+      - immich.internal
+      - micro.internal
+    depends_on:
+      - immich-typesense
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+
+      - "traefik.http.routers.http_immich.service=immich"
+      - "traefik.http.services.immich.loadbalancer.server.port=3001"
+      - "traefik.http.routers.http_immich.entryPoints=web"
+      - "traefik.http.routers.http_immich.rule=Host(`immich.zarva.me`)"
+
+  immich-microservices:
+    container_name: immich-microservices
+    image: ghcr.io/immich-app/immich-server:release
+    entrypoint: ["/bin/sh", "./start-microservices.sh"]
+    networks:
+      - postgres.internal
+      - redis.internal
+      - immich.internal
+    volumes:
+      - ${UPLOAD_LOCATION}:/usr/src/app/upload
+    env_file:
+      - .env
+    depends_on:
+      - immich-typesense
+    restart: unless-stopped
+
+  immich-machine-learning:
+    container_name: immich-machine-learning
+    image: ghcr.io/immich-app/immich-machine-learning:release
+    volumes:
+      - ${UPLOAD_LOCATION}:/usr/src/app/upload
+      - ./model_cache:/cache
+    env_file:
+      - .env
+    networks:
+      - immich.internal
+    restart: unless-stopped
+
+  immich-typesense:
+    container_name: immich-typesense
+    image: typesense/typesense:0.24.0
+    environment:
+      - TYPESENSE_API_KEY=${TYPESENSE_API_KEY}
+      - TYPESENSE_DATA_DIR=/data
+        #    logging:
+        # driver: none
+    networks:
+      - immich.internal
+    volumes:
+      - ./tsdata:/data
+    restart: unless-stopped
+
+networks:
+  postgres.internal:
+    external:
+      name: postgres.internal
+  micro.internal:
+    external:
+      name: micro.internal
+  redis.internal:
+    external:
+      name: redis.internal
+  immich.internal:
+    external:
+      name: immich.internal
+
